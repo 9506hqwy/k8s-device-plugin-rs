@@ -1,0 +1,178 @@
+// from https://github.com/kubernetes/kubelet/blob/v0.31.1/pkg/apis/deviceplugin/v1beta1/api.proto
+
+syntax = "proto3";
+
+package v1beta1;
+
+// kubelet がエクスポートしているサービス
+service Registration {
+	// kubelet にプラグインを登録する。
+	rpc Register(RegisterRequest) returns (Empty) {}
+}
+
+// Register の引数
+message RegisterRequest {
+	// API のバージョン
+	string version = 1;
+	// UNIX ドメインソケットの名前
+	string endpoint = 2;
+	// デバイスのリソース名(vendor-domain/resourcetype)
+	string resource_name = 3;
+	// DevicePlugin サービスのオプション
+	DevicePluginOptions options = 4;
+}
+
+// 空メッセージ
+message Empty {
+}
+
+// プラグインがエクスポートするサービス
+service DevicePlugin {
+	// プラグインのオプションを返却する。
+	rpc GetDevicePluginOptions(Empty) returns (DevicePluginOptions) {}
+
+	// デバイスの一覧を返却する。デバイスの状態が変化すれば一覧を再返却する。
+	rpc ListAndWatch(Empty) returns (stream ListAndWatchResponse) {}
+
+	// 推奨するデバイスの一覧を返却する。
+	rpc GetPreferredAllocation(PreferredAllocationRequest) returns (PreferredAllocationResponse) {}
+
+	// コンテナに割り当てるためデバイスを準備をする。コンテナの作成時に実行する。
+    // 返却値はコンテナランタイムに渡される。
+	// https://github.com/cncf-tags/container-device-interface
+	rpc Allocate(AllocateRequest) returns (AllocateResponse) {}
+
+	// コンテナの起動前に実行する。
+	rpc PreStartContainer(PreStartContainerRequest) returns (PreStartContainerResponse) {}
+}
+
+// ListAndWatch の返却値
+message ListAndWatchResponse {
+	// デバイスの一覧
+	repeated Device devices = 1;
+}
+
+// ListAndWatch の返却値
+message Device {
+	// デバイスの ID
+	string ID = 1;
+	// 状態(Healthy / Unhealthy)
+	string health = 2;
+	// トポロジ
+	TopologyInfo topology = 3;
+}
+
+// トポロジ
+message TopologyInfo {
+	// NUMA ノード
+	repeated NUMANode nodes = 1;
+}
+
+// NUMA ノード
+message NUMANode {
+	// NUMA ノードの ID
+	int64 ID = 1;
+}
+
+// GetPreferredAllocation の引数
+message PreferredAllocationRequest {
+	repeated ContainerPreferredAllocationRequest container_requests = 1;
+}
+
+// GetPreferredAllocation の引数
+message ContainerPreferredAllocationRequest {
+	// 利用可能なデバイスの ID
+	repeated string available_deviceIDs = 1;
+	// 必須なデバイスの ID
+	repeated string must_include_deviceIDs = 2;
+	// デバイス数
+	int32 allocation_size = 3;
+}
+
+// GetPreferredAllocation の返却値
+message PreferredAllocationResponse {
+	repeated ContainerPreferredAllocationResponse container_responses = 1;
+}
+
+// GetPreferredAllocation の返却値
+message ContainerPreferredAllocationResponse {
+	// デバイスの ID
+	repeated string deviceIDs = 1;
+}
+
+// Allocate の引数
+message AllocateRequest {
+	repeated ContainerAllocateRequest container_requests = 1;
+}
+
+// Allocate の引数
+message ContainerAllocateRequest {
+	// デバイスの ID
+	repeated string devices_ids = 1;
+}
+
+// Allocate の返却値
+message AllocateResponse {
+	repeated ContainerAllocateResponse container_responses = 1;
+}
+
+// Allocate の返却値
+message ContainerAllocateResponse {
+	// 環境変数
+	map<string, string> envs = 1;
+	// マウント
+	repeated Mount mounts = 2;
+	// デバイスノード
+	repeated DeviceSpec devices = 3;
+	// 注釈
+	map<string, string> annotations = 4;
+	// 完全修飾 CDI デバイス名
+	repeated CDIDevice cdi_devices = 5;
+}
+
+// Allocate の返却値
+message Mount {
+	// コンテナ上のパス
+	string container_path = 1;
+	// ホスト上のパス
+	string host_path = 2;
+	// 読み取り専用かどうか
+	bool read_only = 3;
+}
+
+// Allocate の返却値
+message DeviceSpec {
+	// コンテナ上のパス
+	string container_path = 1;
+	// ホスト上のパス
+	string host_path = 2;
+	// Cgroups 権限
+	// `r`: 読み取り
+	// `w`: 書き込み
+	// `m`: 新規作成
+	string permissions = 3;
+}
+
+// Allocate の返却値
+message CDIDevice {
+	// 完全修飾 CDI デバイス名
+	string name = 1;
+}
+
+// PreStartContainer の引数
+message PreStartContainerRequest {
+    // デバイスの ID
+	repeated string devices_ids = 1;
+}
+
+// PreStartContainer の返却値
+message PreStartContainerResponse {
+}
+
+// プラグインのオプション
+message DevicePluginOptions {
+	// PreStartContainer を実行する必要があるかどうかを示す。
+	bool pre_start_required = 1;
+	// GetPreferredAllocation を使用することができるかどうかを示す。
+	bool get_preferred_allocation_available = 2;
+}

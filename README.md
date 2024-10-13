@@ -1,7 +1,23 @@
-# Template for Rust Crate
+# Kubernetes Device Plugin Interface for Rust
 
-This repository provides a template for Rust crate.
+## Sample Device
 
-## TODO
+Deploy pod with sample devices.
 
-* Collect test coverage on vscode test running.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-dp
+  namespace: default
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    resources:
+      limits:
+        demo/sample-device: 2
+```

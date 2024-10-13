@@ -1,0 +1,23 @@
+[package]
+name = "sample-device"
+keywords = ["kubernetes"]
+# https://crates.io/category_slugs
+categories = ["hardware-support"]
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tonic-build = "0.12.3"
+
+[dependencies]
+device-plugin ={ path = "../device-plugin" }
+env_logger = "0.11.5"
+log = "0.4.22"
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread", "signal"] }
+tokio-stream = "0.1.16"
+tonic = "0.12.3"
