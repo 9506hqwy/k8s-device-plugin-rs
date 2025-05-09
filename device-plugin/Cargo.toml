@@ -12,7 +12,7 @@ repository.workspace = true
 license.workspace = true
 
 [build-dependencies]
-tonic-build = "0.12.3"
+tonic-build = "0.13.1"
 
 [dependencies]
 hyper-util = "0.1.9"
