@@ -17,7 +17,7 @@ tonic-build = "0.12.3"
 [dependencies]
 hyper-util = "0.1.9"
 log = "0.4.22"
-prost = "0.13.3"
+prost = "0.14.0"
 tokio = { version = "1.40.0", features = ["macros", "signal"] }
 tokio-stream = "0.1.16"
 tonic = "0.12.3"
