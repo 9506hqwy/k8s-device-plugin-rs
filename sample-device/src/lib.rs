@@ -77,7 +77,7 @@ impl DevicePlugin for DevicePluginService {
             let mut res = ContainerAllocateResponse::default();
             for id in req.devices_ids.as_slice() {
                 res.envs
-                    .insert(format!("SAMPLE_DEVICE{}", id), "1".to_string());
+                    .insert(format!("SAMPLE_DEVICE{id}"), "1".to_string());
             }
             responses.push(res);
         }

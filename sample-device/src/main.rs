@@ -1,7 +1,8 @@
 use device_plugin::error::Error;
-use sample_device::{discover, DevicePluginService, RESOURCE_NAME, SOCK_NAME};
+use sample_device::{DevicePluginService, RESOURCE_NAME, SOCK_NAME, discover};
 use tokio::sync::watch;
 
+#[allow(clippy::result_large_err)]
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     env_logger::init();

@@ -1,8 +1,9 @@
 use device_plugin::error::Error;
-use device_plugin::v1beta1::device_plugin_client::DevicePluginClient;
 use device_plugin::v1beta1::Empty;
+use device_plugin::v1beta1::device_plugin_client::DevicePluginClient;
 use log::trace;
 
+#[allow(clippy::result_large_err)]
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let channel = device_plugin::plugin_channel(sample_device::SOCK_NAME).await?;
@@ -14,7 +15,7 @@ async fn main() -> Result<(), Error> {
 
     while let Some(response) = response.get_mut().message().await? {
         for device in response.devices {
-            println!("{:?}", device);
+            println!("{device:?}");
         }
     }
 
